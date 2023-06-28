@@ -1,6 +1,8 @@
 #include "./env/env.h"
 #include "./input/input.h"
 #include <stdio.h>
+#include "cmd/cmd.h"
+#include "./exec/exec.h"
 
 int main(int ac, char **av, char **env_str)
 {
@@ -20,4 +22,5 @@ int main(int ac, char **av, char **env_str)
 	}
 	lst_clear(env, &env_del);
 	return (0);
+ 
 }

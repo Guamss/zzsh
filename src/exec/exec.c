@@ -1,3 +1,4 @@
+#include <sys/wait.h>
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
@@ -20,6 +21,10 @@ int execute(cmd** input, char** env)
       dup2(1, input[i]->fd_out); 
       // on tue l'enfant (l'enfant devient la commande entrée par l'utilisateur)
       exitcode = execve(input[i]->executable, input[i]->args, env);
+    }
+    else
+    {
+      waitpid(pid, &exitcode, 0);
     }
   }
   return exitcode;
@@ -66,5 +71,3 @@ int builtin_execute(cmd** input, char** env)
   }
   return exitcode;
 }
-
-
