@@ -20,3 +20,54 @@ int execute(cmd** input, char** env)
     }
   }
 }
+
+int builtin_execute(cmd** input, char** env)
+{
+  for(int i=0; input[i]!=NULL; i++)
+  {
+    switch(input[i]->executable)
+    {
+      case "cd":
+        change_directory(input[i]->args);
+    }
+  }
+}
+
+int change_directory(char** args)
+{
+  if(len(args)!=2)
+  {
+    printf("Mauvais arguments");
+    return 1;
+  }
+  if(chdir(path[1])!=0)
+  {
+    printf("Mauvais chemin : %s", path);
+    return 1;
+  }
+  return 0;
+}
+
+int len(char** list)
+{
+  for (int index=0; index!=NULL; index++);
+  return index;
+}
+
+int main()
+{
+  cmd** tests;
+  tests = malloc(2*sizeof(cmd*));
+  cmd test;
+  test.executable = "/bin/cat";
+  test.args = malloc(3*sizeof(char*));
+  test.args[0] = "cat";
+  test.args[1] = "file";
+  test.args[2] = NULL;
+  test.fd_in = 0;
+  test.fd_out = 1;
+  tests[0] = &test;
+  tests[1] = NULL;
+  execute(tests, NULL);
+  return 0;
+}
