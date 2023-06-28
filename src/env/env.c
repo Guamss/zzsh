@@ -101,6 +101,8 @@ lst** env_init(const char** env)
 			free(key);
 			return (NULL);
 		}
+		free(key);
+		free(value);
 	}
 	return (root);
 }
