@@ -1,3 +1,5 @@
+#include <limits.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "../cmd/cmd.h"
@@ -25,10 +27,9 @@ int builtin_execute(cmd** input, char** env)
 {
   for(int i=0; input[i]!=NULL; i++)
   {
-    switch(input[i]->executable)
+    if (strcmp(input[i]->executable, "cd") == 0)
     {
-      case "cd":
-        change_directory(input[i]->args);
+      change_directory(input[i]->args);
     }
   }
 }
@@ -37,20 +38,26 @@ int change_directory(char** args)
 {
   if(len(args)!=2)
   {
-    printf("Mauvais arguments");
+    printf("Mauvais arguments\n");
     return 1;
   }
-  if(chdir(path[1])!=0)
+  if(chdir(args[1])!=0)
   {
-    printf("Mauvais chemin : %s", path);
+    printf("Mauvais chemin : %s\n", args[1]);
     return 1;
+  }
+  char cwd[PATH_MAX];
+  if (getcwd(cwd, sizeof(cwd)) != NULL) 
+  {
+    printf("Current working dir: %s\n", cwd);
   }
   return 0;
 }
 
 int len(char** list)
 {
-  for (int index=0; index!=NULL; index++);
+  int index;
+  for (index = 0; list[index]!=NULL; index++);
   return index;
 }
 
@@ -59,15 +66,15 @@ int main()
   cmd** tests;
   tests = malloc(2*sizeof(cmd*));
   cmd test;
-  test.executable = "/bin/cat";
+  test.executable = "cd";
   test.args = malloc(3*sizeof(char*));
-  test.args[0] = "cat";
-  test.args[1] = "file";
+  test.args[0] = "cd";
+  test.args[1] = "..";
   test.args[2] = NULL;
   test.fd_in = 0;
   test.fd_out = 1;
   tests[0] = &test;
   tests[1] = NULL;
-  execute(tests, NULL);
+  builtin_execute(tests, NULL);
   return 0;
 }
