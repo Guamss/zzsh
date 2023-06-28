@@ -1,10 +1,10 @@
 #include "utils.h"
 
-int is_in_quote(const char *str)
+int is_in_quote(const char *str, size_t pos)
 {
 	int out = 0;
 
-	for (size_t i = 0; str[i] != '\0'; i++)
+	for (size_t i = 0; str[i] != '\0' && i < pos; i++)
 	{
 		if (str[i] == '\"')
 		{
