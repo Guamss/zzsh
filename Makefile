@@ -7,7 +7,7 @@ OBJ_DIR = obj
 LIB_DIR = lib
 SOURCES = $(shell find $(SRC_DIR) -type f -name '*.c')
 OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SOURCES))
-LIBRARIES = lib/bozolib/bozolib.a
+LIBRARIES = lib/bozolib/bozolib.a -lreadline
 DEPS = $(OBJECTS:.o=.d)
 
 all: $(NAME) $(LIBRARIES)
