@@ -1,3 +1,3 @@
 [submodule "lib/bozolib"]
-	url = git@git.chauvet.pro:starnakin/bozolib.git
+	url = https://git.chauvet.pro/starnakin/bozolib
 	path = lib/bozolib

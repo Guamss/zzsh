@@ -36,12 +36,12 @@ int change_directory(char** args)
 {
   if(len(args)!=2)
   {
-    printf("Mauvais arguments\n");
+    dprintf(2, "Mauvais arguments\n");
     return 1;
   }
   if(chdir(args[1])!=0)
   {
-    printf("Mauvais chemin : %s\n", args[1]);
+    dprintf(2, "Mauvais chemin : %s\n", args[1]);
     return 1;
   }
   char cwd[PATH_MAX];
@@ -67,20 +67,4 @@ int builtin_execute(cmd** input, char** env)
   return exitcode;
 }
 
-int main()
-{
-  cmd** tests;
-  tests = malloc(2*sizeof(cmd*));
-  cmd test;
-  test.executable = "cd";
-  test.args = malloc(3*sizeof(char*));
-  test.args[0] = "cd";
-  test.args[1] = "..";
-  test.args[2] = NULL;
-  test.fd_in = 0;
-  test.fd_out = 1;
-  tests[0] = &test;
-  tests[1] = NULL;
-  builtin_execute(tests, NULL);
-  return 0;
-}
+
