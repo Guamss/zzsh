@@ -105,7 +105,7 @@ lst** env_init(const char** env)
 	return (root);
 }
 
-char *get_env_variable(lst** root, char* key)
+char *get_env_variable(lst** root, const char* key)
 {
 	lst* current = *root;
 	env *content;
