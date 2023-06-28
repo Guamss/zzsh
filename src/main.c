@@ -1,12 +1,23 @@
-#include "prompt/prompt.h"
 #include "./env/env.h"
+#include "./input/input.h"
 #include <stdio.h>
 
-int main(int ac, char **av, char **env)
+int main(int ac, char **av, char **env_str)
 {
-	lst** lst_env;
+	char *line;
+	lst** env;
+
 	(void) av;
 	(void) ac;
-	lst_env = env_init((const char **) env);
-  printf(get_prompt(lst_env));
+	env = env_init((const char **) env_str);
+	if (env == NULL)
+		return (1);
+	line = get_user_input(env);
+	while (line != NULL)
+	{
+		free(line);
+		line = get_user_input(env);
+	}
+	lst_clear(env, &env_del);
+	return (0);
 }
