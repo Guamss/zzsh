@@ -8,6 +8,7 @@
 
 int execute(cmd** input, char** env)
 {
+  int exitcode;
   for(int i=0; input[i]!=NULL; i++)
   {
     // création d'un processus enfant du programme
@@ -18,20 +19,17 @@ int execute(cmd** input, char** env)
       // redirige la sortie standard vers un file descriptor
       dup2(1, input[i]->fd_out); 
       // on tue l'enfant (l'enfant devient la commande entrée par l'utilisateur)
-      execve(input[i]->executable, input[i]->args, env);
+      exitcode = execve(input[i]->executable, input[i]->args, env);
     }
   }
+  return exitcode;
 }
 
-int builtin_execute(cmd** input, char** env)
+int len(char** list)
 {
-  for(int i=0; input[i]!=NULL; i++)
-  {
-    if (strcmp(input[i]->executable, "cd") == 0)
-    {
-      change_directory(input[i]->args);
-    }
-  }
+  int index;
+  for (index = 0; list[index]!=NULL; index++);
+  return index;
 }
 
 int change_directory(char** args)
@@ -49,16 +47,24 @@ int change_directory(char** args)
   char cwd[PATH_MAX];
   if (getcwd(cwd, sizeof(cwd)) != NULL) 
   {
-    printf("Current working dir: %s\n", cwd);
+    printf("cd %s \nCurrent working dir: %s\n", args[1], cwd);
   }
   return 0;
 }
 
-int len(char** list)
+int builtin_execute(cmd** input, char** env)
 {
-  int index;
-  for (index = 0; list[index]!=NULL; index++);
-  return index;
+  int exitcode;
+  (void) env;
+  for(int i=0; input[i]!=NULL; i++)
+  {
+    if (strcmp(input[i]->executable, "cd") == 0)
+    {
+      exitcode = change_directory(input[i]->args);
+      
+    }
+  }
+  return exitcode;
 }
 
 int main()
