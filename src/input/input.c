@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "../../lib/bozolib/bozolib.h"
 #include "../env/env.h"
+#include <fcntl.h>
 
 static char* get_prompt(lst** env)
 {
@@ -15,12 +16,20 @@ static char* get_prompt(lst** env)
 	{
 		dprintf(2, "chemin inconnu");
 		return NULL;
-	} 
-	char* computer = get_env_variable(env, "COMPUTER");
-	char* user = get_env_variable(env, "USER");
+	}
+  char hostname_buff[BUFSIZ];
+  int file_host = open("/etc/hostname", O_RDONLY);
+  if (file_host == -1)
+    strcpy(hostname_buff, "");
+  read(file_host, hostname_buff, BUFSIZ);
+  close(file_host);
+  char* contains = strchr(hostname_buff, '\n');
+  if (contains)
+  {
+    *contains = '\0';
+  }
+  char* user = get_env_variable(env, "USER");
 	char* home = get_env_variable(env, "HOME");
-	if (computer == NULL)
-		computer = "";
 	if (user == NULL)
 		user = "";
 	else if (strncmp(home, cwd, strlen(home)) == 0)
@@ -28,11 +37,11 @@ static char* get_prompt(lst** env)
 		strcpy(cwd, "~");
 		strcat(cwd, cwd + strlen(home));
 	}
-	size = snprintf(NULL, 0, "%s@%s>%s $ ",user, computer, cwd) + 10;
+	size = snprintf(NULL, 0, "%s@%s>%s $ ",user, hostname_buff, cwd) + 10;
 	out = malloc(size*sizeof(char));
 	if(out == NULL)
 		return NULL;
-	sprintf(out, "%s@%s > %s $ ",user, computer, cwd);
+	sprintf(out, "%s@%s > %s $ ",user, hostname_buff, cwd);
 	return out;
 }
 
