@@ -79,25 +79,29 @@ int execute(cmd* input, lst** env)
   return exitcode;
 }
 
-int command_list_exec(cmd** cmds, lst** env)
+int cmds_list_exec(lst** cmds, lst** env)
 {
-  int fds[2];
-  for (int i=0; cmds[i] != NULL; i++)
-  {
-    if (pipe(fds) < 0)
-      return 1;
-    if (i < len((void**)cmds)-1)
-    {
-    cmds[i]->fd_out = fds[1];
-    cmds[i+1]->fd_in = fds[0];
-    }
-    if (builtin_execute(cmds[i], env) == 1)
-      execute(cmds[i], env);
-  }
-  return 0;
+	lst* current = *cmds;
+	cmd* content;
+	int fds[2];
+	while (current != NULL)
+	{
+		content = current->content;
+		if (pipe(fds) < 0)
+			return 1;
+		if (current->next != NULL)
+		{
+			content->fd_out = fds[1];
+			((cmd*)current->next->content)->fd_in = fds[0];
+		}
+		if (builtin_execute(content, env) == 1)
+			execute(content, env);
+		current = current->next;
+	}
+	return 0;
 }
 
-char* get_executable_path(char* executable, lst** env)
+char* get_executable_path(const char* executable, lst** env)
 {
   int size_path_str;
   char * path_file;
