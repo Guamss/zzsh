@@ -121,3 +121,24 @@ char *get_env_variable(lst** root, const char* key)
 	}
 	return (NULL);
 }
+
+int edit_env_variable(lst** root, const char *key, const char *new_value)
+{
+	lst* current = *root;
+	env* content;
+	
+	while (current != NULL)
+	{
+		content = current->content;
+		if (strcmp(content->key, key) == 0)
+		{
+			free(content->value);
+			content->value = strdup(new_value);
+			if (content->value == NULL)
+				return (2);
+			return (0);
+		}
+		current = current->next;
+	}
+	return (1);
+}
