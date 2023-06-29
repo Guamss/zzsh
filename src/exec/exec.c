@@ -6,6 +6,7 @@
 #include "../cmd/cmd.h"
 #include <unistd.h>
 #include "../env/env.h"
+#include "../utils/utils.h"
 #include "../../lib/bozolib/bozolib.h"
 
 int len(void** list)
@@ -101,16 +102,23 @@ char* get_executable_path(char* executable, lst** env)
   int size_path_str;
   char * path_file;
   char* path_env = get_env_variable(env, "PATH");
-  char** path_env_splited =split(path_env, ":");
+  char** path_env_splited =split_quoted_charset(path_env, ":");
+  
   for (int i=0; path_env_splited[i] != NULL; i++)
   {
     size_path_str = strlen(path_env_splited[i])+strlen(executable); 
-    path_file = malloc(size_path_str*sizeof(char*));
+    path_file = malloc((size_path_str+1)*sizeof(char*));
     strcpy(path_file, path_env_splited[i]);
+    strcat(path_file, "/");
     strcat(path_file, executable);
     if (access(path_file, X_OK) == 0)
+    {
+      tab_free((void**)path_env_splited);
       return path_file;
+    }
+      
     free(path_file);
   }
+  tab_free((void**)path_env_splited);
   return NULL;
 }
