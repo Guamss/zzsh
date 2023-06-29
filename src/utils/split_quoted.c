@@ -52,6 +52,7 @@ int fill_tab(char **tab, const char* str, const char* charset)
 		}
 		len++;
 	}
+	return 0;
 }
 
 char **split_quoted_charset(const char *str, const char *charset)
