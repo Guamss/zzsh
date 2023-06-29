@@ -66,14 +66,3 @@ char **split_quoted_charset(const char *str, const char *charset)
 		return NULL;
 	return (tab);
 }
-
-int main(int ac, char** av)
-{
-	size_t	i = 0;
-	char** tab;
-	if (ac != 2)
-		return 1;
-	tab = split_quoted_charset(av[1], " \t");
-	while ( tab[i] ) printf( "%s\n", tab[i++] );
-	free_tab(tab);
-}
