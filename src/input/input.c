@@ -37,12 +37,24 @@ static char* get_prompt(lst** env)
 		strcpy(cwd, "~");
 		strcat(cwd, cwd + strlen(home));
 	}
-	size = snprintf(NULL, 0, "%s@%s>%s $ ",user, hostname_buff, cwd) + 10;
-	out = malloc(size*sizeof(char));
-	if(out == NULL)
-		return NULL;
-	sprintf(out, "%s@%s > %s $ ",user, hostname_buff, cwd);
-	return out;
+  if (strcmp(user, "root") == 0)
+  {
+    size = snprintf(NULL, 0, "[%s@%s] > %s # ",user, hostname_buff, cwd) + 10;
+    out = malloc(size*sizeof(char));
+    if(out == NULL)
+      return NULL;
+    sprintf(out, "[%s@%s] > %s # ",user, hostname_buff, cwd);
+    return out;
+  }
+  else
+  {
+    size = snprintf(NULL, 0, "[%s@%s] >%s $ ",user, hostname_buff, cwd) + 10;
+    out = malloc(size*sizeof(char));
+    if(out == NULL)
+      return NULL;
+    sprintf(out, "[%s@%s] > %s $ ",user, hostname_buff, cwd);
+    return out;
+  }
 }
 
 char *get_user_input(lst** env)
