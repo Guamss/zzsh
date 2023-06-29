@@ -13,3 +13,4 @@ void env_del(void *ptr);
 char *get_env_variable(lst** root, const char* key);
 int add_env_variable(lst** root, const char *key, const char *value);
 int edit_env_variable(lst** root, const char *key, const char *new_value);
+char** get_env_str(lst** root);

@@ -142,3 +142,34 @@ int edit_env_variable(lst** root, const char *key, const char *new_value)
 	}
 	return (1);
 }
+
+char **get_env_str(lst** root)
+{
+	lst* current = *root;
+	env* content;
+	char** tab;
+	size_t i;
+	size_t len;
+	
+	tab = malloc(sizeof(char*) * (lst_len(*root) + 1));
+	if (tab == NULL)
+		return (NULL);
+	i = 0;
+	while (current != NULL)
+	{
+		content = current->content;
+		len = strlen(content->key) + 1 + strlen(content->value) + 1;
+		tab[i] = malloc(len * sizeof(char));
+		if (tab[i] == NULL)
+		{
+			tab_free((void**) tab);
+			return NULL;
+		}
+		strcpy(tab[i], content->key);
+		strcat(tab[i], "=");
+		strcat(tab[i], content->value);
+		current = current->next;
+		i++;
+	}
+	return tab;
+}
