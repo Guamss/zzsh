@@ -13,48 +13,35 @@ static char* get_prompt(lst** env)
 	int size;
 	char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
-	{
-		dprintf(2, "chemin inconnu");
 		return NULL;
-	}
   char hostname_buff[BUFSIZ];
   int file_host = open("/etc/hostname", O_RDONLY);
   if (file_host == -1)
     strcpy(hostname_buff, "");
   read(file_host, hostname_buff, BUFSIZ);
   close(file_host);
-  char* contains = strchr(hostname_buff, '\n');
-  if (contains)
+  char* first_line_return = strchr(hostname_buff, '\n');
+  if (first_line_return)
   {
-    *contains = '\0';
+    *first_line_return = '\0';
   }
   char* user = get_env_variable(env, "USER");
 	char* home = get_env_variable(env, "HOME");
-	if (user == NULL)
-		user = "";
-	else if (strncmp(home, cwd, strlen(home)) == 0)
+	if (strncmp(home, cwd, strlen(home)) == 0)
 	{
 		strcpy(cwd, "~");
 		strcat(cwd, cwd + strlen(home));
-	}
+	} 
+  size = strlen(user) + strlen(hostname_buff) + strlen(cwd) + 9;
+  out = malloc(size*sizeof(char));
+  if(out == NULL)
+    return NULL;
+  sprintf(out, "[%s@%s] > %s ",user, hostname_buff, cwd); 
   if (strcmp(user, "root") == 0)
-  {
-    size = strlen(user) + strlen(hostname_buff) + strlen(cwd) + 9;
-    out = malloc(size*sizeof(char));
-    if(out == NULL)
-      return NULL;
-    sprintf(out, "[%s@%s] > %s # ",user, hostname_buff, cwd);
-    return out;
-  }
+    strcat(out, "# ");
   else
-  {
-    size = strlen(user) + strlen(hostname_buff) + strlen(cwd) + 9;
-    out = malloc(size*sizeof(char));
-    if(out == NULL)
-      return NULL;
-    sprintf(out, "[%s@%s] > %s $ ",user, hostname_buff, cwd);
-    return out;
-  }
+    strcat(out, "$ ");
+  return out;
 }
 
 char *get_user_input(lst** env)
