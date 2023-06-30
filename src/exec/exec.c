@@ -32,28 +32,20 @@ int change_directory(char** args, lst** env)
   {
     char* path = get_env_variable(env, "HOME");
     chdir(path);
-    edit_env_variable(env, "OLDPWD", oldpwd); 
-    if (getcwd(cwd, sizeof(cwd)) != NULL)
-      {
-        edit_env_variable(env, "PWD", cwd);
-      }
-    return 0;
   }
-  if (chdir(args[1]) == 0)
+  else if (len((void**)args)>2)
   {
-    edit_env_variable(env, "OLDPWD", oldpwd); 
-    if (getcwd(cwd, sizeof(cwd)) != NULL)
-      {
-        edit_env_variable(env, "PWD", cwd);
-      }
-    return 0;  
+  dprintf(2, "cd : Trop d'arguments!\n");
+    return 1;
   }
-  else
+  else if (chdir(args[1]) != 0)
   {
     dprintf(2, "Mauvais chemin : %s\n", args[1]);
     return 1;
-  }
-  
+  }  
+  edit_env_variable(env, "OLDPWD", oldpwd); 
+  if (getcwd(cwd, sizeof(cwd)) != NULL)
+    edit_env_variable(env, "PWD", cwd);
   return 0;
 }
 
