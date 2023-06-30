@@ -40,7 +40,7 @@ int fill_tab(char **tab, const char* str, const char* charset)
 		while (str[i] != '\0' && (is_in_quote(str, i) || strchr(charset, str[i]) != NULL))
 			i++;
 		if (str[i] == '\0')
-			return len;
+			return 0;
 		start = str + i;
 		while (str[i] != '\0' && (is_in_quote(str, i) || strchr(charset, str[i]) == NULL))
 			i++;
