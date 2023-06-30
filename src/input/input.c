@@ -39,7 +39,7 @@ static char* get_prompt(lst** env)
 	}
   if (strcmp(user, "root") == 0)
   {
-    size = snprintf(NULL, 0, "[%s@%s] > %s # ",user, hostname_buff, cwd) + 10;
+    size = strlen(user) + strlen(hostname_buff) + strlen(cwd) + 9;
     out = malloc(size*sizeof(char));
     if(out == NULL)
       return NULL;
@@ -48,7 +48,7 @@ static char* get_prompt(lst** env)
   }
   else
   {
-    size = snprintf(NULL, 0, "[%s@%s] >%s $ ",user, hostname_buff, cwd) + 10;
+    size = strlen(user) + strlen(hostname_buff) + strlen(cwd) + 9;
     out = malloc(size*sizeof(char));
     if(out == NULL)
       return NULL;
