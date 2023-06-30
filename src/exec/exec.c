@@ -101,7 +101,9 @@ int cmds_list_exec(lst** cmds, lst** env)
 			content->fd_out = fds[1];
 			((cmd*)current->next->content)->fd_in = fds[0];
 		}
-		if (builtin_execute(content, env) == 1)
+		if (content->executable == NULL)
+			dprintf(2, "zzsh: command not found: %s\n", content->args[0]);
+		else if (builtin_execute(content, env) == 1)
 			execute(content, env);
 		current = current->next;
 	}
