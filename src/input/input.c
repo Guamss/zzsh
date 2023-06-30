@@ -66,10 +66,10 @@ char *get_user_input(lst** env)
 	if (prompt == NULL)
 		return NULL;
 	input = readline(prompt);
-	if (input != NULL && str_contain_only(input, "\t ") == 0)
-		add_history(input);
 	free(prompt);
 	if (input == NULL)
 		printf("exit");
+	if (input != NULL && str_contain_only(input, "\t ") == 0)
+		add_history(input);
 	return (input);
 }

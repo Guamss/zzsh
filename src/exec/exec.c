@@ -18,10 +18,10 @@ int len(void** list)
 
 char* builtin_path(const char* executable)
 {
-  if (strcmp(executable, "cd") == 0)
-    return "cd";
+  if (strcmp(executable, "cd") == 0);
   else
     return NULL;
+  return strdup(executable);
 }
 
 int change_directory(char** args, lst** env)
