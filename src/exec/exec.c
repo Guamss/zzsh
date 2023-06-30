@@ -77,10 +77,18 @@ int execute(cmd* input, lst** env)
   {
     dup2(input->fd_out, 1);
     dup2(input->fd_in, 0);
+    if (input->fd_in > 2)
+      close(input->fd_in);
+    if (input->fd_out > 2)
+      close(input->fd_out);
     exitcode = execve(input->executable, input->args, get_env_str(env));
   }
   else
   {
+    if (input->fd_in > 2)
+      close(input->fd_in);
+    if (input->fd_out > 2)
+      close(input->fd_out);
     waitpid(pid, &exitcode, 0);
   }
   return exitcode;
