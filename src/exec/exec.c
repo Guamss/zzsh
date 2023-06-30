@@ -16,6 +16,14 @@ int len(void** list)
   return index;
 }
 
+char* builtin_path(const char* executable)
+{
+  if (strcmp(executable, "cd") == 0)
+    return "cd";
+  else
+    return NULL;
+}
+
 int change_directory(char** args, lst** env)
 {
   char cwd[PATH_MAX];
@@ -112,6 +120,9 @@ int cmds_list_exec(lst** cmds, lst** env)
 
 char* get_executable_path(const char* executable, lst** env)
 {
+  char* builtin = builtin_path(executable);
+  if (builtin != NULL)
+    return builtin;
   int size_path_str;
   char * path_file;
   char* path_env = get_env_variable(env, "PATH");
