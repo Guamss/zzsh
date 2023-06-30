@@ -64,8 +64,15 @@ int builtin_execute(cmd* input, lst** env)
 
 int execute(cmd* input, lst** env)
 {
+  int pid;
   int exitcode;
-  const int pid = fork();
+  if (input->executable != NULL)
+    pid = fork();
+  else
+  {
+    dprintf(2, "Executable inconnu\n");
+    return 1;
+  }
   if (pid == 0)
   {
     dup2(input->fd_out, 1);
@@ -111,7 +118,7 @@ char* get_executable_path(const char* executable, lst** env)
   for (int i=0; path_env_splited[i] != NULL; i++)
   {
     size_path_str = strlen(path_env_splited[i])+strlen(executable); 
-    path_file = malloc((size_path_str+1)*sizeof(char*));
+    path_file = malloc((size_path_str+1)*sizeof(char));
     strcpy(path_file, path_env_splited[i]);
     strcat(path_file, "/");
     strcat(path_file, executable);
