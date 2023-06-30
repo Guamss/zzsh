@@ -8,58 +8,13 @@
 #include "../env/env.h"
 #include "../utils/utils.h"
 #include "../../lib/bozolib/bozolib.h"
+#include "../builtin-exec/builtin.h"
 
 int len(void** list)
 {
   int index;
   for (index = 0; list[index]!=NULL; index++);
   return index;
-}
-
-char* builtin_path(const char* executable)
-{
-  if (strcmp(executable, "cd") == 0);
-  else
-    return NULL;
-  return strdup(executable);
-}
-
-int change_directory(char** args, lst** env)
-{
-  char cwd[PATH_MAX];
-  char* oldpwd = get_env_variable(env, "PWD"); 
-  if(len((void**)args)==1)
-  {
-    char* path = get_env_variable(env, "HOME");
-    chdir(path);
-  }
-  else if (len((void**)args)>2)
-  {
-  dprintf(2, "cd : Trop d'arguments!\n");
-    return 1;
-  }
-  else if (chdir(args[1]) != 0)
-  {
-    dprintf(2, "Mauvais chemin : %s\n", args[1]);
-    return 1;
-  }  
-  edit_env_variable(env, "OLDPWD", oldpwd); 
-  if (getcwd(cwd, sizeof(cwd)) != NULL)
-    edit_env_variable(env, "PWD", cwd);
-  return 0;
-}
-
-int builtin_execute(cmd* input, lst** env)
-{
-  if (strcmp(input->executable, "cd") == 0)
-  {
-    change_directory(input->args, env);
-    return 0;
-  }
-  else
-  {
-    return 1;
-  }
 }
 
 int execute(cmd* input, lst** env)
@@ -94,6 +49,35 @@ int execute(cmd* input, lst** env)
   return exitcode;
 }
 
+char* get_executable_path(const char* executable, lst** env)
+{
+  char* builtin = builtin_path(executable);
+  if (builtin != NULL)
+    return builtin;
+  int size_path_str;
+  char * path_file;
+  char* path_env = get_env_variable(env, "PATH");
+  char** path_env_splited =split_quoted_charset(path_env, ":");
+  
+  for (int i=0; path_env_splited[i] != NULL; i++)
+  {
+    size_path_str = strlen(path_env_splited[i])+strlen(executable)+1; 
+    path_file = malloc((size_path_str+1)*sizeof(char));
+    strcpy(path_file, path_env_splited[i]);
+    strcat(path_file, "/");
+    strcat(path_file, executable);
+    if (access(path_file, X_OK) == 0)
+    {
+      tab_free((void**)path_env_splited);
+      return path_file;
+    }
+      
+    free(path_file);
+  }
+  tab_free((void**)path_env_splited);
+  return NULL;
+}
+
 int cmds_list_exec(lst** cmds, lst** env)
 {
 	lst* current = *cmds;
@@ -116,33 +100,4 @@ int cmds_list_exec(lst** cmds, lst** env)
 		current = current->next;
 	}
 	return 0;
-}
-
-char* get_executable_path(const char* executable, lst** env)
-{
-  char* builtin = builtin_path(executable);
-  if (builtin != NULL)
-    return builtin;
-  int size_path_str;
-  char * path_file;
-  char* path_env = get_env_variable(env, "PATH");
-  char** path_env_splited =split_quoted_charset(path_env, ":");
-  
-  for (int i=0; path_env_splited[i] != NULL; i++)
-  {
-    size_path_str = strlen(path_env_splited[i])+strlen(executable); 
-    path_file = malloc((size_path_str+1)*sizeof(char));
-    strcpy(path_file, path_env_splited[i]);
-    strcat(path_file, "/");
-    strcat(path_file, executable);
-    if (access(path_file, X_OK) == 0)
-    {
-      tab_free((void**)path_env_splited);
-      return path_file;
-    }
-      
-    free(path_file);
-  }
-  tab_free((void**)path_env_splited);
-  return NULL;
 }
