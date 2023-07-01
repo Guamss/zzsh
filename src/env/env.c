@@ -171,5 +171,6 @@ char **get_env_str(lst** root)
 		current = current->next;
 		i++;
 	}
+	tab[i] = NULL;
 	return tab;
 }

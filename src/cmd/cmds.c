@@ -21,7 +21,7 @@ lst** cmds_init(size_t len)
 			return (NULL);
 		}
 		lst_addback(root, current);
-		content = malloc(sizeof(cmd));
+		content = calloc(sizeof(cmd), 1);
 		if (content == NULL)
 		{
 			lst_clear(root, &free);
