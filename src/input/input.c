@@ -4,13 +4,13 @@
 #include <limits.h>
 #include <unistd.h>
 #include "../../lib/bozolib/bozolib.h"
+#include "../../lib/bozolib/src/str/str.h"
 #include "../env/env.h"
 #include <fcntl.h>
 
 static char* get_prompt(lst** env)
 {
 	char* out;
-	int size;
 	char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
 		return NULL;
@@ -31,16 +31,12 @@ static char* get_prompt(lst** env)
 	{
 		strcpy(cwd, "~");
 		strcat(cwd, cwd + strlen(home));
-	} 
-  size = strlen(user) + strlen(hostname_buff) + strlen(cwd) + 9;
-  out = malloc(size*sizeof(char));
-  if(out == NULL)
-    return NULL;
-  sprintf(out, "[%s@%s] > %s ",user, hostname_buff, cwd); 
+	}  
+  out = str_merger(8, "[", user, "@", hostname_buff, "]", " > ", cwd, " ");
   if (strcmp(user, "root") == 0)
-    strcat(out, "# ");
+    out = str_merger(2, out, "# ");
   else
-    strcat(out, "$ ");
+    out = str_merger(2, out, "$ ");
   return out;
 }
 
