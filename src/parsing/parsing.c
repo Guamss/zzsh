@@ -46,6 +46,7 @@ lst **parsing_pipe(const char *str, lst** env)
 		parsing_cmd(cmds_str[i], current->content, env);
 		current = current->next;
 	}
+	tab_free((void**)cmds_str);
 	return (cmds);
 }
 
@@ -73,6 +74,7 @@ lst*** parsing(const char *line, lst** env)
 			return (NULL);
 		}
 	}
+	tab_free((void **) line_commas);
 	tab[i] = NULL;
 	return (tab);
 }

@@ -6,4 +6,5 @@ void cmd_del(void *ptr)
 
 	tab_free((void**)content->args);
 	free(content->executable);
+	free(content);
 }
