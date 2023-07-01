@@ -29,20 +29,18 @@ int main(int ac, char **av, char **env_str)
 	{
 		cmds_list = parsing(line, env);
 		free(line);
-		if (cmds_list == NULL)
+		if (cmds_list != NULL)
 		{
-			lst_clear(env, &env_del);
-			return 1;
-		}
-		for (size_t i = 0; cmds_list[i] != NULL; i++)
-		{
-			if (cmds_list_exec(cmds_list[i], env))
+			for (size_t i = 0; cmds_list[i] != NULL; i++)
 			{
-				lst_clear(env, &env_del);
-				return 1;
+				if (cmds_list_exec(cmds_list[i], env))
+				{
+					lst_clear(env, &env_del);
+					return 1;
+				}
 			}
+			cmds_list_destroyer(cmds_list);
 		}
-		cmds_list_destroyer(cmds_list);
 		line = get_user_input(env);
 	}
 	lst_clear(env, &env_del);

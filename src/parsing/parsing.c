@@ -1,9 +1,4 @@
-#include "../cmd/cmd.h"
-#include "../utils/utils.h"
-#include "../exec/exec.h"
-#include "../../lib/bozolib/bozolib.h"
-#include <stddef.h>
-
+#include "parsing.h"
 char* parsing_executable(const char* executable, lst** env)
 {
 	if (strchr("./", executable[0]))
@@ -13,9 +8,8 @@ char* parsing_executable(const char* executable, lst** env)
 
 int parsing_cmd(char *str, cmd* command, lst** env)
 {
-	// if (get_redirections(str, command))
-		// return 1;
-	// remove_redirections(str);
+	if (get_redirections(str, command))
+		return 1;
 	command->args = split_quoted_charset(str, "\t ");
 	if (command->args == NULL)
 		return 1;
@@ -43,7 +37,11 @@ lst **parsing_pipe(const char *str, lst** env)
 	current = *cmds;
 	for (size_t i = 0; cmds_str[i] != NULL; i++)
 	{
-		parsing_cmd(cmds_str[i], current->content, env);
+		if (parsing_cmd(cmds_str[i], current->content, env))
+		{
+			tab_free((void**)cmds_str);
+			return NULL;
+		}
 		current = current->next;
 	}
 	tab_free((void**)cmds_str);
