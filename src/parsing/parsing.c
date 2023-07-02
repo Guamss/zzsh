@@ -1,6 +1,8 @@
 #include "parsing.h"
 char* parsing_executable(const char* executable, lst** env)
 {
+	if (executable == NULL)
+		return NULL;
 	if (strchr("./", executable[0]))
 		return strdup(executable);
 	return (get_executable_path(executable, env));
