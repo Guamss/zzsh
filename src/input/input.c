@@ -32,11 +32,13 @@ static char* get_prompt(lst** env)
 		strcpy(cwd, "~");
 		strcat(cwd, cwd + strlen(home));
 	}  
-  out = str_merger(8, "[", user, "@", hostname_buff, "]", " > ", cwd, " ");
+  out = str_merger(8, user, "[", "@", hostname_buff, "]", " > ", cwd, " ");
+  char* temp = out;
   if (strcmp(user, "root") == 0)
-    out = str_merger(2, out, "# ");
+    out = str_merger(2, "# ", out);
   else
-    out = str_merger(2, out, "$ ");
+    out = str_merger(2,  "$ ", out);
+  free(temp);
   return out;
 }
 

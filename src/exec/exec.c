@@ -13,7 +13,7 @@
 int len(void** list)
 {
   int index;
-  for (index = 0; list[index]!=NULL; index++);
+   for (index = 0; list[index]!=NULL; index++);
   return index;
 }
 
@@ -71,7 +71,7 @@ char* get_executable_path(const char* executable, lst** env)
       tab_free((void**)path_env_splited);
       return path_file;
     }
-      
+    
     free(path_file);
   }
   tab_free((void**)path_env_splited);
