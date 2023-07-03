@@ -7,7 +7,7 @@ que des variables d'environnement dans un terminal.
 
 ## Intallation :
 
-Il suffit de clone le repos, celui-ci possède un fichier déjà compilé
+Il suffit de télécharger une release qui possède un fichier précompilé
 ```bash
 ./zzsh
 ```
