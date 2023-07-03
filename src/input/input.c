@@ -1,12 +1,5 @@
-#include <stdio.h>
+#include "./input.h"
 #include <readline/readline.h>
-#include <readline/history.h>
-#include <limits.h>
-#include <unistd.h>
-#include "../../lib/bozolib/bozolib.h"
-#include "../../lib/bozolib/src/str/str.h"
-#include "../env/env.h"
-#include <fcntl.h>
 
 static char* get_prompt(lst** env)
 {
@@ -40,6 +33,29 @@ static char* get_prompt(lst** env)
   return out;
 }
 
+static void finisher(char** strs)
+{
+	char* tmp;
+	char* tmp2;
+	(void)tmp2;
+	if (strs[0] == NULL)
+		return;
+	while (strs[0] != NULL && is_in_quote(strs[0], 0 - 1))
+	{
+		tmp2 = readline("> ");
+		if (tmp2 == NULL)
+			return;
+		tmp = str_merger(3, "\n", strs[0], tmp2);
+		free(strs[0]);
+		if (tmp == NULL)
+		{
+			strs[0] = NULL;
+			return;
+		}
+		strs[0] = tmp;
+	}
+}
+
 char *get_user_input(lst** env)
 {
 	char *prompt;
@@ -50,6 +66,7 @@ char *get_user_input(lst** env)
 		return NULL;
 	input = readline(prompt);
 	free(prompt);
+	finisher(&input);
 	if (input == NULL)
 		printf("exit");
 	if (input != NULL && str_contain_only(input, "\t ") == 0)
