@@ -26,7 +26,7 @@ int main(int ac, char **av, char **env_str)
 	data.env = env_init((const char **) env_str);
 	if (data.env == NULL)
 		return (1);
-	data.aliases = aliases_init();
+	data.aliases = aliases_init(data.env);
 	if (data.aliases == NULL)
 	{
 		lst_clear(data.env, &env_del);
