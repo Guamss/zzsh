@@ -1,18 +1,8 @@
-#include <sys/wait.h>
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "../cmd/cmd.h"
-#include <unistd.h>
-#include "../env/env.h"
-#include "../utils/utils.h"
-#include "../../lib/bozolib/bozolib.h"
-#include "../exec/exec.h"
+#include "./builtin.h"
 
 char* builtin_path(const char* executable)
 {
-  if (strcmp(executable, "cd") == 0 || strcmp(executable, "where") == 0); 
+  if (strcmp(executable, "cd") == 0 || strcmp(executable, "where") == 0 || strcmp(executable, "alias") == 0); 
   else
     return NULL;
   return strdup(executable);
@@ -22,12 +12,12 @@ int change_directory(char** args, lst** env)
 {
   char cwd[PATH_MAX];
   char* oldpwd = get_env_variable(env, "PWD"); 
-  if(len((void**)args)==1)
+  if (tablen((const void**)args)==1)
   {
     char* path = get_env_variable(env, "HOME");
     chdir(path);
   }
-  else if (len((void**)args)>2)
+  else if (tablen((const void**)args)>2)
   {
   dprintf(2, "cd : Trop d'arguments!\n");
     return 1;
@@ -45,7 +35,7 @@ int change_directory(char** args, lst** env)
 
 int where(char** args, lst** env)
 {
-  if (len((void**)args)==1)
+  if (tablen((const void**)args)==1)
   {
     dprintf(2, "where : Il faut au moins 1 argument!\n");
     return 1;
@@ -65,18 +55,20 @@ int where(char** args, lst** env)
   return 0;
 }
 
-int builtin_execute(cmd* input, lst** env)
+int builtin_execute(cmd* input, data_t *data, int fd_in, int fd_out)
 {
   if (strcmp(input->executable, "cd") == 0)
   {
-    change_directory(input->args, env);
+    change_directory(input->args, data->env);
     return 0;
   }
   else if(strcmp(input->executable, "where") == 0)
   {
-    where(input->args, env);
+    where(input->args, data->env);
     return 0;
   }
+  else if (strcmp(input->executable, "alias") == 0)
+	  return builtin_alias(fd_in, fd_out, data->aliases, input->args);
   else
   {
     return 1;

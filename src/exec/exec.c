@@ -9,13 +9,7 @@
 #include "../utils/utils.h"
 #include "../../lib/bozolib/bozolib.h"
 #include "../builtin-exec/builtin.h"
-
-int len(void** list)
-{
-  int index;
-   for (index = 0; list[index]!=NULL; index++);
-  return index;
-}
+#include "../data/data.h"
 
 int execute(cmd* input, lst** env)
 {
@@ -78,7 +72,7 @@ char* get_executable_path(const char* executable, lst** env)
   return NULL;
 }
 
-int cmds_list_exec(lst** cmds, lst** env)
+int cmds_list_exec(lst** cmds, data_t *data)
 {
 	lst* current = *cmds;
 	cmd* content;
@@ -97,8 +91,8 @@ int cmds_list_exec(lst** cmds, lst** env)
 			;
 		else if (content->executable == NULL)
 			dprintf(2, "zzsh: command not found: %s\n", content->args[0]);
-		else if (builtin_execute(content, env) == 1)
-			execute(content, env);
+		else if (builtin_execute(content, data, fds[0], fds[1]) == 1)
+			execute(content, data->env);
 		current = current->next;
 	}
 	return 0;

@@ -1,14 +1,24 @@
 #include "parsing.h"
-char* parsing_executable(const char* executable, lst** env)
+
+char* parsing_executable(const char* executable, data_t *data)
 {
+	const char* tmp;
 	if (executable == NULL)
 		return NULL;
-	if (strchr("./", executable[0]))
-		return strdup(executable);
-	return (get_executable_path(executable, env));
+	if (executable[0] == '\\')
+		tmp = executable + 1;
+	else
+	{
+		tmp = get_alias(data->aliases, executable);
+		if (tmp == NULL)
+			tmp = executable;
+	}
+	if (strchr("./", tmp[0]))
+		return strdup(tmp);
+	return (get_executable_path(tmp, data->env));
 }
 
-int parsing_cmd(char *str, cmd* command, lst** env)
+int parsing_cmd(char *str, cmd* command, data_t *data)
 {
 	if (get_redirections(str, command))
 		return 1;
@@ -17,11 +27,11 @@ int parsing_cmd(char *str, cmd* command, lst** env)
 		return 1;
 	for (size_t i = 0; command->args[i]; i++)
 		quote_remover(command->args[i]);	
-	command->executable = parsing_executable(command->args[0], env);
+	command->executable = parsing_executable(command->args[0], data);
 	return 0;
 }
 
-lst **parsing_pipe(const char *str, lst** env)
+lst **parsing_pipe(const char *str, data_t *data)
 {
 	char** cmds_str;
 	lst** cmds;
@@ -39,7 +49,7 @@ lst **parsing_pipe(const char *str, lst** env)
 	current = *cmds;
 	for (size_t i = 0; cmds_str[i] != NULL; i++)
 	{
-		if (parsing_cmd(cmds_str[i], current->content, env))
+		if (parsing_cmd(cmds_str[i], current->content, data))
 		{
 			tab_free((void**)cmds_str);
 			return NULL;
@@ -50,7 +60,7 @@ lst **parsing_pipe(const char *str, lst** env)
 	return (cmds);
 }
 
-lst*** parsing(const char *line, lst** env)
+lst*** parsing(const char *line, data_t *data)
 {
 	char** line_commas;
 	lst*** tab;
@@ -67,7 +77,7 @@ lst*** parsing(const char *line, lst** env)
 	size_t i;
 	for (i = 0; line_commas[i] != NULL; i++)
 	{
-		tab[i] = parsing_pipe(line_commas[i], env);
+		tab[i] = parsing_pipe(line_commas[i], data);
 		if (tab[i] == NULL)
 		{
 			tab_free((void**) line_commas);

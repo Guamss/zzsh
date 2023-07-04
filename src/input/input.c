@@ -1,7 +1,7 @@
 #include "./input.h"
 #include <readline/readline.h>
 
-static char* get_prompt(lst** env)
+static char* get_prompt(data_t *data)
 {
 	char* out;
 	char cwd[PATH_MAX];
@@ -18,8 +18,8 @@ static char* get_prompt(lst** env)
   {
     *first_line_return = '\0';
   }
-  char* user = get_env_variable(env, "USER");
-	char* home = get_env_variable(env, "HOME");
+  char* user = get_env_variable(data->env, "USER");
+	char* home = get_env_variable(data->env, "HOME");
 	if (strncmp(home, cwd, strlen(home)) == 0)
 	{
 		strcpy(cwd, "~");
@@ -58,12 +58,12 @@ static void finisher(char** strs)
 	}
 }
 
-char *get_user_input(lst** env)
+char *get_user_input(data_t *data)
 {
 	char *prompt;
 	char *input;
 	
-	prompt = get_prompt(env);
+	prompt = get_prompt(data);
 	if (prompt == NULL)
 		return NULL;
 	input = readline(prompt);
