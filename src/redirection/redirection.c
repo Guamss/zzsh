@@ -42,26 +42,25 @@ void redirection_fill(const char* str, size_t nb_symbols, cmd_t* command, const 
 	int fd;
 	if (str[0] == '>')
 	{
-		if (access(path, F_OK))
-			dprintf(2, "zzsh: no such file or directory: %s\n", path);
-		else if (access(path, R_OK))
-			dprintf(2, "zzsh: permission denied: %s\n", path);
 		if (nb_symbols == 1)
 			fd = open(path, O_TRUNC | O_CREAT | O_WRONLY, 0644);
 		else
 			fd = open(path, O_APPEND | O_CREAT | O_WRONLY, 0644);
-		if (command->input[0] > 2)
-			close(command->input[0]);
+		if (command->output[0] > 2)
+			close(command->output[0]);
 		if (fd == -1)
+		{
+			dprintf(2, "zzsh: permission denied: %s\n", path);
 			fd = -2;
-		command->input[0] = fd;
+		}
+		command->output[0] = fd;
 	}
 	else
 	{
 		if (access(path, F_OK))
 			dprintf(2, "zzsh: no such file or directory: %s\n", path);
 		else if (access(path, R_OK))
-			dprintf(2, "zzsh: permission denied\n");
+			dprintf(2, "zzsh: permission denied: %s\n", path);
 		if (nb_symbols == 1)
 			fd = open(path, O_RDONLY);
 		else
