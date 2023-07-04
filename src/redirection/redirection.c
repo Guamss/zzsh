@@ -36,32 +36,35 @@ static size_t get_path_size(const char* str)
 	return i;
 }
 
-int redirection_fill(const char* str, size_t nb_symbols, cmd* command, const char *path)
+int redirection_fill(const char* str, size_t nb_symbols, cmd_t* command, const char *path)
 {
-	int problem = 0;
+	int fd;
 	if (str[0] == '>')
 	{
-		if (command->fd_out > 2)
-			close(command->fd_out);
 		if (nb_symbols == 1)
-			command->fd_out = open(path, O_TRUNC | O_CREAT | O_WRONLY, 0644);
+			fd = open(path, O_TRUNC | O_CREAT | O_WRONLY, 0644);
 		else
-			command->fd_out = open(path, O_APPEND | O_CREAT | O_WRONLY, 0644);
-		problem = command->fd_out == -1;
+			fd = open(path, O_APPEND | O_CREAT | O_WRONLY, 0644);
+		if (fd == -1)
+			dprintf(2, "zzsh: \"%s\": file error\n", path);
+		if (command->output[0] > 2)
+			close(command->output[0]);
+		command->output[0] = fd;
+		return (fd == -1);
 	}
 	else
 	{
-		if (command->fd_in > 2)
-			close(command->fd_in);
 		if (nb_symbols == 1)
-			command->fd_in = open(path, O_RDONLY);
+			fd = open(path, O_RDONLY);
 		else
-			command->fd_in = open(path, O_RDONLY);
-		problem = command->fd_in == -1;
+			fd = open(path, O_RDONLY);
+		if (fd == -1)
+			dprintf(2, "zzsh: \"%s\": file error\n", path);
+		if (command->input[0] > 2)
+			close(command->input[0]);
+		command->input[0] = fd;
+		return (fd == -1);
 	}
-	if (problem)
-		dprintf(2, "zzsh: \"%s\": file error\n", path);
-	return problem;
 }
 
 static size_t get_concecutive(const char *str)
@@ -71,7 +74,7 @@ static size_t get_concecutive(const char *str)
 	return (i);
 }
 
-int get_redirections(char *str, cmd* command)
+int get_redirections(char *str, cmd_t* command)
 {
 	char *redirection;
 	char redirection_symbol[3] = "<>";

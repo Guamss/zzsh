@@ -8,4 +8,4 @@
 #include "../cmd/cmd.h"
 #include "../utils/utils.h"
 
-int get_redirections(char *str, cmd* command);
+int get_redirections(char *str, cmd_t* command);

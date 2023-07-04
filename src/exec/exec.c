@@ -11,36 +11,36 @@
 #include "../builtin-exec/builtin.h"
 #include "../data/data.h"
 
-int execute(cmd* input, lst** env)
+int execute(lst** cmds, cmd_t* cmd, lst** env)
 {
   int pid;
-  int exitcode;
-  if (input->executable != NULL)
+  if (cmd->executable != NULL)
     pid = fork();
   else
   {
     dprintf(2, "Executable inconnu\n");
     return 1;
   }
-  if (pid == 0)
+  if (pid == -1)
+	  return 1;
+  else if (pid == 0)
   {
-    dup2(input->fd_out, 1);
-    dup2(input->fd_in, 0);
-    if (input->fd_in > 2)
-      close(input->fd_in);
-    if (input->fd_out > 2)
-      close(input->fd_out);
-    exitcode = execve(input->executable, input->args, get_env_str(env));
+	char** env_str = get_env_str(env);
+	if (env_str == NULL)
+		return 1;
+	dup2(cmd->output[0], 1);
+	dup2(cmd->input[0], 0);
+	lst_iter(cmds, &cmd_close);
+  	execve(cmd->executable, cmd->args, env_str);
+	dprintf(2, "execve failed\n");
+	free((void**)env_str);
+	return 1;
   }
   else
   {
-    if (input->fd_in > 2)
-      close(input->fd_in);
-    if (input->fd_out > 2)
-      close(input->fd_out);
-    waitpid(pid, &exitcode, 0);
+	cmd->pid = pid;
   }
-  return exitcode;
+  return 0;
 }
 
 char* get_executable_path(const char* executable, lst** env)
@@ -72,27 +72,42 @@ char* get_executable_path(const char* executable, lst** env)
   return NULL;
 }
 
+void add_fd(int fds[2], int fd)
+{
+	if (fds[0] == -1)
+		fds[0] = fd;
+	else
+		fds[1] = fd;
+}
+
 int cmds_list_exec(lst** cmds, data_t *data)
 {
 	lst* current = *cmds;
-	cmd* content;
+	cmd_t* content;
 	int fds[2];
 	while (current != NULL)
 	{
 		content = current->content;
-		if (pipe(fds) < 0)
-			return 1;
 		if (current->next != NULL)
 		{
-			content->fd_out = fds[1];
-			((cmd*)current->next->content)->fd_in = fds[0];
+			if (pipe(fds) == -1)
+				return 1;
+			add_fd(content->output, fds[1]);
+			add_fd(((cmd_t*)current->next->content)->input, fds[0]);
 		}
 		if (content->args[0] == NULL)
 			;
 		else if (content->executable == NULL)
 			dprintf(2, "zzsh: command not found: %s\n", content->args[0]);
 		else if (builtin_execute(content, data, fds[0], fds[1]) == 1)
-			execute(content, data->env);
+		{
+			if (execute(cmds, content, data->env))
+			{
+				cmd_close(content);
+				return 1;
+			}
+			cmd_close(content);
+		}
 		current = current->next;
 	}
 	return 0;

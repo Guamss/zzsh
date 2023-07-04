@@ -9,9 +9,11 @@ char* parsing_executable(const char* executable, data_t *data)
 	return (get_executable_path(executable, data->env));
 }
 
-int parsing_cmd(char *str, cmd* command, data_t *data)
+int parsing_cmd(char *str, cmd_t* command, data_t *data)
 {
 	char* tmp;
+	if (cmd_init(command))
+		return 1;
 	if (get_redirections(str, command))
 		return 1;
 	command->args = split_quoted_charset(str, "\t ");
@@ -52,20 +54,56 @@ lst **parsing_pipe(const char *str, data_t *data)
 	cmds_str = split_quoted_charset(str, "|");
 	if (cmds_str == NULL)
 		return (NULL);
-	cmds = cmds_init(tablen((const void**)cmds_str));
+	cmds = malloc(sizeof(lst*));
 	if (cmds == NULL)
 	{
 		tab_free((void**)cmds_str);
 		return (NULL);
 	}
-	current = *cmds;
+	if (cmds_str[0] != NULL)
+	{
+		*cmds = malloc(sizeof(lst));
+		if (*cmds == NULL)
+		{
+			free(cmds);
+			tab_free((void**)cmds_str);
+			return (NULL);
+		}
+		current = *cmds;
+	}
 	for (size_t i = 0; cmds_str[i] != NULL; i++)
 	{
+		current->content = malloc(sizeof(cmd_t));
+		if (current->content == NULL)
+		{
+			tab_free((void**)cmds_str);
+			lst_clear(cmds, &cmd_del);
+			return NULL;
+		}
 		if (parsing_cmd(cmds_str[i], current->content, data))
 		{
 			tab_free((void**)cmds_str);
+			lst_clear(cmds, &cmd_del);
 			return NULL;
 		}
+		if (cmds_str[i + 1] != NULL)
+		{
+			current->next = malloc(sizeof(lst));
+			if (current->next == NULL)
+			{
+				tab_free((void**)cmds_str);
+				lst_clear(cmds, &cmd_del);
+				return NULL;
+			}
+		}
+		else
+			current->next = NULL;
+		if (i == 0)
+			if (((cmd_t*) current->content)->input[0] == -1)
+				((cmd_t*) current->content)->input[0] = 0;
+		if (current->next == NULL)
+			if (((cmd_t*) current->content)->output[0] == -1)
+				((cmd_t*) current->content)->output[0] = 1;
 		current = current->next;
 	}
 	tab_free((void**)cmds_str);

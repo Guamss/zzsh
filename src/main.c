@@ -51,7 +51,7 @@ int main(int ac, char **av, char **env_str)
 		}
 		line = get_user_input(&data);
 	}
-	lst_clear(data.aliases, alias_del);
+	lst_clear(data.aliases, &alias_del);
 	lst_clear(data.env, &env_del);
 	return (0);
  

@@ -55,7 +55,7 @@ int where(char** args, lst** env)
   return 0;
 }
 
-int builtin_execute(cmd* input, data_t *data, int fd_in, int fd_out)
+int builtin_execute(cmd_t* input, data_t *data, int fd_in, int fd_out)
 {
   if (strcmp(input->executable, "cd") == 0)
   {
