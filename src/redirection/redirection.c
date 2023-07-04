@@ -85,7 +85,7 @@ int get_redirections(char *str, cmd* command)
 		{
 			redirection = strchr(redirection, redirection_symbol[i]);
 			while (redirection != NULL && is_in_quote(str, redirection - str))
-				redirection = strchr(redirection, '>');
+				redirection = strchr(redirection + 2, redirection_symbol[i]);
 			if (redirection == NULL)
 				break;
 			redirection_type = get_concecutive(redirection);
