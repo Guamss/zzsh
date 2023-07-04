@@ -5,7 +5,8 @@ void cmd_del(void *ptr)
 	cmd_t* content = ptr;
 
 	tab_free((void**)content->args);
-	free(content->executable);
+	if (content->executable)
+		free(content->executable);
 	free(content);
 }
 
@@ -16,6 +17,7 @@ int cmd_init(cmd_t* command)
 	command->input[1] = -1;
 	command->output[0] = -1;
 	command->output[1] = -1;
+	command->executable = NULL;
 	return 0;
 }
 
