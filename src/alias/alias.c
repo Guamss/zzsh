@@ -112,11 +112,23 @@ void alias_del(void *ptr)
 	free(alias->value);
 	free(alias);
 }
+
+void print_aliases(lst** aliases, int fd_out)
+{
+	lst* current = *aliases;
+	alias_t* content;
+
+	while (current != NULL)
+	{
+		content = current->content;
+		dprintf(fd_out, "%s='%s'\n", content->key, content->value);
+		current = current->next;
+	}
+}
+
 int alias_save(lst** aliases, lst** env)
 {
   int fd;
-  alias_t* content;
-  lst* current = *aliases;
   char* file_path = get_zzsh_aliases(env);
   fd = open(file_path, O_WRONLY);
   if (fd == -1)
@@ -124,11 +136,6 @@ int alias_save(lst** aliases, lst** env)
     dprintf(2, "Une erreur est survenue lors de l'écriture des aliases\n");
     return 1;
   }
-  while(current != NULL)
-  {
-    content = current->content;
-    dprintf(fd, "%s=%s\n", content->key, content->value);
-    current = current->next;
-  }
+  print_aliases(aliases, fd);
   return 0;
 }

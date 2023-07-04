@@ -3,18 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-static void print_aliases(lst** aliases, int fd_out)
-{
-	lst* current = *aliases;
-	alias_t* content;
-
-	while (current != NULL)
-	{
-		content = current->content;
-		dprintf(fd_out, "%s='%s'\n", content->key, content->value);
-		current = current->next;
-	}
-}
 int builtin_alias(data_t* data, cmd_t* cmd)
 {
 	const char* equal;
