@@ -127,7 +127,7 @@ int cmds_list_exec(lst** cmds, data_t *data)
 			add_fd(content->output, fds[1]);
 			add_fd(((cmd_t*)current->next->content)->input, fds[0]);
 		}
-		if (builtin_execute(content, data, fds[0], fds[1]) == 1)
+		if (builtin_execute(data, content) == 1)
 		{
 			if (execute(cmds, content, data->env))
 			{

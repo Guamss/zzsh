@@ -12,9 +12,9 @@
 #include "../../lib/bozolib/bozolib.h"
 
 char* builtin_path(const char* executable);
-int builtin_execute(cmd_t* input, data_t* data, int fd_in, int fd_out);
+int builtin_execute(data_t* data, cmd_t* cmd);
 
-int builtin_alias(int fd_in, int fd_out, lst** aliases, char** args);
+int builtin_alias(data_t* data, cmd_t* cmd);
 int change_directory(char** args, lst** env);
 int where(char** args, lst** env);
 

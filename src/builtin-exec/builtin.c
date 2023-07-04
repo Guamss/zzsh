@@ -55,7 +55,7 @@ int where(char** args, lst** env)
   return 0;
 }
 
-int builtin_execute(cmd_t* input, data_t *data, int fd_in, int fd_out)
+int builtin_execute(data_t* data, cmd_t* input)
 {
   if (input->executable == NULL)
 	  return 1;
@@ -70,7 +70,7 @@ int builtin_execute(cmd_t* input, data_t *data, int fd_in, int fd_out)
     return 0;
   }
   else if (strcmp(input->executable, "alias") == 0)
-	  return builtin_alias(fd_in, fd_out, data->aliases, input->args);
+	  return builtin_alias(data, input);
   else
   {
     return 1;

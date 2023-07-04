@@ -15,29 +15,28 @@ static void print_aliases(lst** aliases, int fd_out)
 		current = current->next;
 	}
 }
-int builtin_alias(int fd_in, int fd_out, lst** aliases, char **args)
+int builtin_alias(data_t* data, cmd_t* cmd)
 {
 	const char* equal;
 	char* result;
 	char* key;
-	(void)fd_in;
-	if (tablen((const void**) args) == 1)
-		print_aliases(aliases, fd_out);
-	for (size_t i = 1; args[i] != NULL; i++)
+	if (tablen((const void**) cmd->args) == 1)
+		print_aliases(data->aliases, cmd->output[0]);
+	for (size_t i = 1; cmd->args[i] != NULL; i++)
 	{
-		equal = strchr(args[i], '=');
+		equal = strchr(cmd->args[i], '=');
 		if (equal == NULL)
 		{
-			result = get_alias(aliases, args[i]);
+			result = get_alias(data->aliases, cmd->args[i]);
 			if (result != NULL)
-				dprintf(fd_out, "%s=%s\n", args[i], result);
+				dprintf(cmd->output[0], "%s=%s\n", cmd->args[i], result);
 		}
 		else
 		{
-			key = strndup(args[i], equal - args[i]);
+			key = strndup(cmd->args[i], equal - cmd->args[i]);
 			if (key == NULL)
 				return 1;
-			if (add_alias(aliases, key, equal + 1))
+			if (add_alias(data->aliases, key, equal + 1))
 			{
 				free(key);
 				return 1;
