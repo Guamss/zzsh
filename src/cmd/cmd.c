@@ -24,14 +24,14 @@ void cmd_close(void* ptr)
 	cmd_t* content = ptr;
 	if (content->input[0] > 2)
 		close(content->input[0]);
-	content->input[0] = -1;
+	// content->input[0] = -1;
 	if (content->input[1] > 2)
 		close(content->input[1]);
-	content->input[1] = -1;
+	// content->input[1] = -1;
 	if (content->output[0] > 2)
 		close(content->output[0]);
-	content->output[0] = -1;
+	// content->output[0] = -1;
 	if (content->output[1] > 2)
 		close(content->output[1]);
-	content->output[1] = -1;
+	// content->output[1] = -1;
 }

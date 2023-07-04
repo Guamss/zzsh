@@ -80,6 +80,36 @@ void add_fd(int fds[2], int fd)
 		fds[1] = fd;
 }
 
+void cmds_wait(lst** cmds, data_t* data)
+{
+	lst* current = *cmds;
+	cmd_t* content;
+	int exit_status;
+
+	while (current)
+	{
+		content = current->content;
+		if (content->pid != -1 && content->input[0] != -2 && content->output[0] != -2)
+		{
+			waitpid(content->pid, &exit_status, 0);
+			if (WIFSIGNALED(exit_status))
+			{
+				if (exit_status == 131)
+				{
+					printf("Quit (core dumped)");
+					data->status_code = 131;
+				}
+				else
+					data->status_code = 130;
+				printf("\n");
+			}
+			else
+				data->status_code = WEXITSTATUS(exit_status);
+		}
+		current = current->next;
+	}
+}
+
 int cmds_list_exec(lst** cmds, data_t *data)
 {
 	lst* current = *cmds;
@@ -110,5 +140,6 @@ int cmds_list_exec(lst** cmds, data_t *data)
 		}
 		current = current->next;
 	}
+	cmds_wait(cmds, data);
 	return 0;
 }
