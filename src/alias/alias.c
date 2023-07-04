@@ -8,12 +8,10 @@
 #include "../utils/utils.h"
 #include <string.h>
 
-lst** aliases_init(lst** env)
+static char* get_zzsh_aliases(lst** env)
 {
-	lst** aliases;
-  ssize_t file_name_size;
   char* home;
-  int fd;
+  ssize_t file_name_size;
   char* file_path;
   ssize_t size_file_path;
   file_name_size = strlen("/.zzsh_aliases");
@@ -22,6 +20,14 @@ lst** aliases_init(lst** env)
   file_path = malloc((size_file_path+1)*sizeof(char));
   strcpy(file_path, home);
   strcat(file_path, "/.zzsh_aliases");
+  return file_path;
+}
+
+lst** aliases_init(lst** env)
+{
+	lst** aliases;
+  int fd;
+  char* file_path = get_zzsh_aliases(env);
   fd = open(file_path, O_CREAT, 0644);
   if (fd == -1) 
     dprintf(2, "Erreur lors la création du fichier .zzsh_aliases\n");
@@ -105,4 +111,24 @@ void alias_del(void *ptr)
 	free(alias->key);
 	free(alias->value);
 	free(alias);
+}
+int alias_save(lst** aliases, lst** env)
+{
+  int fd;
+  alias_t* content;
+  lst* current = *aliases;
+  char* file_path = get_zzsh_aliases(env);
+  fd = open(file_path, O_WRONLY);
+  if (fd == -1)
+  {
+    dprintf(2, "Une erreur est survenue lors de l'écriture des aliases\n");
+    return 1;
+  }
+  while(current != NULL)
+  {
+    content = current->content;
+    dprintf(fd, "%s=%s\n", content->key, content->value);
+    current = current->next;
+  }
+  return 0;
 }
