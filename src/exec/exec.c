@@ -14,13 +14,17 @@
 int execute(lst** cmds, cmd_t* cmd, lst** env)
 {
   int pid;
-  if (cmd->executable != NULL)
-    pid = fork();
-  else
+  if (cmd->input[0] == -2 || cmd->input[0] == -2)
   {
-    dprintf(2, "Executable inconnu\n");
-    return 1;
+	  pid = -1;
+	  return 0;
   }
+  if (cmd->executable == NULL)
+  {
+	  dprintf(2, "zzsh: command not found: %s\n", cmd->args[0]);
+	  return 0;
+  }
+  pid = fork();
   if (pid == -1)
 	  return 1;
   else if (pid == 0)
@@ -37,9 +41,7 @@ int execute(lst** cmds, cmd_t* cmd, lst** env)
 	return 1;
   }
   else
-  {
 	cmd->pid = pid;
-  }
   return 0;
 }
 
@@ -125,11 +127,7 @@ int cmds_list_exec(lst** cmds, data_t *data)
 			add_fd(content->output, fds[1]);
 			add_fd(((cmd_t*)current->next->content)->input, fds[0]);
 		}
-		if (content->args[0] == NULL)
-			;
-		else if (content->executable == NULL)
-			dprintf(2, "zzsh: command not found: %s\n", content->args[0]);
-		else if (builtin_execute(content, data, fds[0], fds[1]) == 1)
+		if (builtin_execute(content, data, fds[0], fds[1]) == 1)
 		{
 			if (execute(cmds, content, data->env))
 			{

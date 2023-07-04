@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 char* get_path(const char* start_path)
 {
@@ -36,34 +37,40 @@ static size_t get_path_size(const char* str)
 	return i;
 }
 
-int redirection_fill(const char* str, size_t nb_symbols, cmd_t* command, const char *path)
+void redirection_fill(const char* str, size_t nb_symbols, cmd_t* command, const char *path)
 {
 	int fd;
 	if (str[0] == '>')
 	{
+		if (access(path, F_OK))
+			dprintf(2, "zzsh: no such file or directory: %s\n", path);
+		else if (access(path, R_OK))
+			dprintf(2, "zzsh: permission denied: %s\n", path);
 		if (nb_symbols == 1)
 			fd = open(path, O_TRUNC | O_CREAT | O_WRONLY, 0644);
 		else
 			fd = open(path, O_APPEND | O_CREAT | O_WRONLY, 0644);
+		if (command->input[0] > 2)
+			close(command->input[0]);
 		if (fd == -1)
-			dprintf(2, "zzsh: \"%s\": file error\n", path);
-		if (command->output[0] > 2)
-			close(command->output[0]);
-		command->output[0] = fd;
-		return (fd == -1);
+			fd = -2;
+		command->input[0] = fd;
 	}
 	else
 	{
+		if (access(path, F_OK))
+			dprintf(2, "zzsh: no such file or directory: %s\n", path);
+		else if (access(path, R_OK))
+			dprintf(2, "zzsh: permission denied\n");
 		if (nb_symbols == 1)
 			fd = open(path, O_RDONLY);
 		else
 			fd = open(path, O_RDONLY);
+		if (command->output[0] > 2)
+			close(command->output[0]);
 		if (fd == -1)
-			dprintf(2, "zzsh: \"%s\": file error\n", path);
-		if (command->input[0] > 2)
-			close(command->input[0]);
-		command->input[0] = fd;
-		return (fd == -1);
+			fd = -2;
+		command->output[0] = fd;
 	}
 }
 
@@ -102,11 +109,7 @@ int get_redirections(char *str, cmd_t* command)
 				path = get_path(redirection + redirection_type);
 				if (path == NULL)
 					return 1;
-				if (redirection_fill(redirection, redirection_type, command, path))
-				{
-					free(path);
-					return (1);
-				}
+				redirection_fill(redirection, redirection_type, command, path);
 				str_shift(redirection, (get_path_size(redirection + redirection_type) + redirection_type) * -1);
 				free(path);
 			}

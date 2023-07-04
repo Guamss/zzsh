@@ -57,6 +57,8 @@ int where(char** args, lst** env)
 
 int builtin_execute(cmd_t* input, data_t *data, int fd_in, int fd_out)
 {
+  if (input->executable == NULL)
+	  return 1;
   if (strcmp(input->executable, "cd") == 0)
   {
     change_directory(input->args, data->env);
