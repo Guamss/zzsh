@@ -2,31 +2,43 @@
 
 char* parsing_executable(const char* executable, data_t *data)
 {
-	const char* tmp;
 	if (executable == NULL)
 		return NULL;
-	if (executable[0] == '\\')
-		tmp = executable + 1;
-	else
-	{
-		tmp = get_alias(data->aliases, executable);
-		if (tmp == NULL)
-			tmp = executable;
-	}
-	if (strchr("./", tmp[0]))
-		return strdup(tmp);
-	return (get_executable_path(tmp, data->env));
+	if (strchr("./", executable[0]))
+		return strdup(executable);
+	return (get_executable_path(executable, data->env));
 }
 
 int parsing_cmd(char *str, cmd* command, data_t *data)
 {
+	char* tmp;
 	if (get_redirections(str, command))
 		return 1;
 	command->args = split_quoted_charset(str, "\t ");
 	if (command->args == NULL)
 		return 1;
 	for (size_t i = 0; command->args[i]; i++)
-		quote_remover(command->args[i]);	
+		quote_remover(command->args[i]);
+	if (command->args[0][0] == '\\')
+	{
+		tmp = strdup(command->args[0] + 1);
+		if (tmp != NULL)
+		{
+			free(command->args[0]);
+			command->args[0] = strdup(tmp);
+		}
+	}
+	else
+	{
+		tmp = get_alias(data->aliases, command->args[0]);
+		if (tmp != NULL)
+		{
+			free(command->args[0]);
+			command->args[0] = strdup(tmp);
+		}
+	}
+	if (command->args[0] == NULL)
+		return 1;
 	command->executable = parsing_executable(command->args[0], data);
 	return 0;
 }
