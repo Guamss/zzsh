@@ -59,3 +59,11 @@ char* get_alias(lst** aliases, const char* key)
 	}
 	return NULL;
 }
+
+void alias_del(void *ptr)
+{
+	alias_t *alias = ptr;
+	free(alias->key);
+	free(alias->value);
+	free(alias);
+}
