@@ -14,9 +14,16 @@ int parsing_cmd(char *str, cmd_t* command, data_t *data)
 	char* tmp;
 	if (cmd_init(command))
 		return 1;
-	if (get_redirections(str, command))
+	tmp = interpret_env_var(data, str);
+	if (tmp == NULL)
 		return 1;
-	command->args = split_quoted_charset(str, "\t ");
+	if (get_redirections(tmp, command))
+	{
+		free(tmp);
+		return 1;
+	}
+	command->args = split_quoted_charset(tmp, "\t ");
+	free(tmp);
 	if (command->args == NULL)
 		return 1;
 	for (size_t i = 0; command->args[i] != NULL; i++)

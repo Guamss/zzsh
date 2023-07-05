@@ -1,7 +1,4 @@
 #include "env.h"
-#include "../../lib/bozolib/bozolib.h"
-#include <stddef.h>
-#include <stdlib.h>
 #include <string.h>
 
 void env_del(void *ptr)
@@ -173,4 +170,74 @@ char **get_env_str(lst** root)
 	}
 	tab[i] = NULL;
 	return tab;
+}
+
+static char* get_key(const char* key_start)
+{
+	if (strncmp(key_start, "~", 1) == 0)
+		return strdup("~");
+	size_t i = 1;
+	while (key_start[i] != '\0' && strchr("\t $\"\'", key_start[i]) == NULL)
+		i++;
+	return (strndup(key_start, i));
+}
+
+static char* get_value(data_t* data, const char* key)
+{
+	char *out;
+	if (strcmp(key, "~") == 0)
+		out = get_env_variable(data->env, "HOME");
+	else if (strcmp(key, "$?") == 0)
+		out = itoA(data->status_code);
+	else
+		out = get_env_variable(data->env, key + 1);
+	if (out == NULL)
+		out = "";
+	return out;
+}
+
+char* interpret_env_var(data_t *data, const char* str)
+{
+	char symbols[3] = "$~";
+	char* out;
+	char* key;
+	char* value;
+	char* tmp2;
+	const char* tmp;
+
+	out = strdup(str);
+	if (out == NULL)
+		return NULL;
+	for (size_t i = 0; symbols[i] != '\0'; i++)
+	{
+		tmp = strchr(out,symbols[i]);
+		while (tmp != NULL && is_in_quote(tmp, str - tmp) == 1)
+			tmp = strchr(tmp, symbols[i]);
+		while (tmp != NULL)
+		{
+			if (tmp == NULL)
+				continue;
+			key = get_key(tmp);
+			if (key == NULL)
+			{
+				free(out);
+				return NULL;
+			}
+			value = get_value(data, key);
+			if (value == NULL)
+			{
+				free(key);
+				free(out);
+				return NULL;
+			}
+			tmp2 = str_replace(out, value, tmp - out, tmp - out + strlen(key));
+			free(key);
+			free(out);
+			out = tmp2;
+			tmp = strchr(out,symbols[i]);
+			while (tmp != NULL && is_in_quote(tmp, str - tmp) == 1)
+				tmp = strchr(tmp, symbols[i]);
+		}
+	}
+	return out;
 }

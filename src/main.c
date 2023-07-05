@@ -35,6 +35,7 @@ int main(int ac, char **av, char **env_str)
 		lst_clear(data.env, &env_del);
 		return 1;
 	}
+	data.status_code = 0;
 	signal(SIGINT, ctrlc);
 	signal(SIGQUIT, SIG_IGN);
 	line = get_user_input(&data);
@@ -56,7 +57,7 @@ int main(int ac, char **av, char **env_str)
 		}
 		line = get_user_input(&data);
 	}
-  alias_save(data.aliases, data.env);
+	alias_save(data.aliases, data.env);
 	lst_clear(data.aliases, &alias_del);
 	lst_clear(data.env, &env_del);
 	return (0);
