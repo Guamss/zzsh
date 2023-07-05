@@ -177,7 +177,7 @@ static char* get_key(const char* key_start)
 	if (strncmp(key_start, "~", 1) == 0)
 		return strdup("~");
 	size_t i = 1;
-	while (key_start[i] != '\0' && strchr("\t $\"\'", key_start[i]) == NULL)
+	while (key_start[i] != '\0' && strchr("\t $\"\'~", key_start[i]) == NULL)
 		i++;
 	return (strndup(key_start, i));
 }
