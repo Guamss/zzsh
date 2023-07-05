@@ -1,10 +1,13 @@
+#include <signal.h>
 #include <sys/wait.h>
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../cmd/cmd.h"
 #include <unistd.h>
+
+#include "../signal/signal.h"
+#include "../cmd/cmd.h"
 #include "../env/env.h"
 #include "../utils/utils.h"
 #include "../../lib/bozolib/bozolib.h"
@@ -30,13 +33,15 @@ int execute(lst** cmds, cmd_t* cmd, lst** env)
 	dup2(cmd->output[0], 1);
 	dup2(cmd->input[0], 0);
 	lst_iter(cmds, &cmd_close);
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
   	execve(cmd->executable, cmd->args, env_str);
 	dprintf(2, "execve failed\n");
 	free((void**)env_str);
 	return 1;
   }
-  else
-	cmd->pid = pid;
+  cmd->pid = pid;
+  signal(SIGINT, SIG_IGN);
   return 0;
 }
 
@@ -136,5 +141,6 @@ int cmds_list_exec(lst** cmds, data_t *data)
 		current = current->next;
 	}
 	cmds_wait(cmds, data);
+	signal(SIGINT, ctrlc);
 	return 0;
 }
