@@ -13,7 +13,7 @@ Il suffit de télécharger une release qui possède un fichier précompilé
 ```
 mais il est aussi possible de le compiler soit même ! (à la racine)
 ```bash
-git clone --recursive
+git clone --recursive https://github.com/Guamss/zzsh.git
 make
 ```
 ### /!\ Note /!\
